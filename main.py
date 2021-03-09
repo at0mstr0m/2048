@@ -1,7 +1,7 @@
 import random
 import math
-from colorama import Fore
 from itertools import chain
+# from colorama import Fore
 
 def print_field(field:list) -> None:
     field_size = int(math.sqrt(len(field)))
@@ -24,10 +24,17 @@ def add_num_to_field(field: list) -> list:
             break
     return field
 
-def swipe_up(field: list) -> list:
+def move_nums_to_side(lines, field_size) -> list:
+    for i in range(len(lines)):  # move all stuff in line to the right
+        lines[i] = list(filter(lambda x: x != 0, lines[i]))  # sort out all zeros
+        while len(lines[i]) != field_size:  # fill up with zeros on the left
+            lines[i].insert(0, 0)
+    return lines
+
+def swipe_up(current_field: list) -> list:
     pass
 
-def swipe_left(field: list) -> list:
+def swipe_left(current_field: list) -> list:
     pass
 
 def swipe_down(current_field: list) -> list:
@@ -49,31 +56,34 @@ def swipe_down(current_field: list) -> list:
             to_skip.append(i + field_size)
     return current_field
 
-def swipe_right(field: list) -> list:
-    pass
+def swipe_right(current_field: list) -> list:
+    field_size = int(math.sqrt(len(current_field)))
+    lines = [current_field[field_size * i: field_size * i + field_size] for i in range(field_size)]
+    lines = move_nums_to_side(lines, field_size)
+    return list(chain.from_iterable(lines))
 
-def swipe(field: list, direction: str) -> list:
+def swipe(current_field: list, direction: str) -> list:
     if direction == 'w':
-        return swipe_up(field)
+        return swipe_up(current_field)
     if direction == 'a':
-        return swipe_left(field)
+        return swipe_left(current_field)
     if direction == 's':
-        return swipe_down(field)
+        return swipe_down(current_field)
     if direction == 'd':
-        return swipe_right(field)
+        return swipe_right(current_field)
 
 
 field_size = 4
 field = [0 for _ in range(1, field_size ** 2 + 1)]     # initialize field with zeros
 # field = [i for i in range(1, field_size ** 2 + 1)]     # initialize field with zeros
 
-add_num_to_field(field)
-add_num_to_field(field)
-add_num_to_field(field)
-add_num_to_field(field)
-add_num_to_field(field)
+field = add_num_to_field(field)
+field = add_num_to_field(field)
+field = add_num_to_field(field)
+field = add_num_to_field(field)
+field = add_num_to_field(field)
 
-print(Fore.BLUE + 'Use\tW\tA\tS\tD to swipe\n\tup\tleft\tdown\tright.\nPress Enter to confirm.')
+print('Use\tW\tA\tS\tD to swipe\n\tup\tleft\tdown\tright.\nPress Enter to confirm.')
 
 game_over = False
 
