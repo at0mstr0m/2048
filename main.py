@@ -13,21 +13,33 @@ def print_field(field:list) -> None:
     print('# # # # # # # # # # #')
 
 def add_num_to_field(field: list) -> list:
-    try:                # check if there is any space to replace a 0
-        field.index(0)
-    except ValueError:
+    if min(field) != 0:     # check if there is any space to replace a 0
         return field
+    # try:                # check if there is any space to replace a 0
+    #     field.index(0)
+    # except ValueError:
+    #     return field
     while True:
         random_index = random.randrange(0, len(field))
         if field[random_index] == 0:
-            field[random_index] = random.choice([2,4])
+            field[random_index] = 2
             break
     return field
 
 def move_nums_to_side(lines, field_size) -> list:
-    for i in range(len(lines)):  # move all stuff in line to the right
-        lines[i] = list(filter(lambda x: x != 0, lines[i]))  # sort out all zeros
-        while len(lines[i]) != field_size:  # fill up with zeros on the left
+    for i in range(len(lines)):                             # iterate through all lines
+        if max(lines[i]) == 0:                              # line with only zeros can be skipped
+            continue
+        lines[i] = list(filter(lambda x: x != 0, lines[i])) # sort out all zeros
+        if len(lines[i]) != 1:                              # no need to check for merging numbers if line is only 1 element
+            for j in reversed(range(len(lines[i]))):
+                if lines[i][j] == 0:                        # skip new zeros
+                    continue
+                if lines[i][j] == lines[i][j - 1]:          # if two numbers next to another are the same
+                    lines[i][j] *= 2                        # double the right one
+                    lines[i][j - 1] = 0                     # zero the other one
+            lines[i] = list(filter(lambda x: x != 0, lines[i]))  # sort out all new zeros
+        while len(lines[i]) != field_size:  # fill up with zeros
             lines[i].insert(0, 0)
     return lines
 
@@ -77,6 +89,13 @@ field_size = 4
 field = [0 for _ in range(1, field_size ** 2 + 1)]     # initialize field with zeros
 # field = [i for i in range(1, field_size ** 2 + 1)]     # initialize field with zeros
 
+print(field)
+
+field = add_num_to_field(field)
+field = add_num_to_field(field)
+field = add_num_to_field(field)
+field = add_num_to_field(field)
+field = add_num_to_field(field)
 field = add_num_to_field(field)
 field = add_num_to_field(field)
 field = add_num_to_field(field)
