@@ -3,28 +3,28 @@ import math
 from itertools import chain
 # from colorama import Fore
 
-def print_field(field:list) -> None:
-    field_size = int(math.sqrt(len(field)))
+def print_field(current_field:list) -> None:
+    field_size = int(math.sqrt(len(current_field)))
     print('# # # # # # # # # # #')
     print('#\t' + '\t' * (field_size - 1) + '\t#')                        # empty line
     for i in range(field_size):
-        print('#\t' + '\t'.join(str(num) for num in field[field_size * i : field_size + field_size * i]) + '\t#')      # separate num with spaces
+        print('#\t' + '\t'.join(str(num) for num in current_field[field_size * i : field_size + field_size * i]) + '\t#')      # separate num with spaces
         print('#\t' + '\t' * (field_size - 1) + '\t#')  # empty line
     print('# # # # # # # # # # #')
 
-def add_num_to_field(field: list) -> list:
-    if min(field) != 0:     # check if there is any space to replace a 0
-        return field
+def add_num_to_field(current_field: list) -> list:
+    if min(current_field) != 0:     # check if there is any space to replace a 0
+        return current_field
     # try:                # check if there is any space to replace a 0
     #     field.index(0)
     # except ValueError:
     #     return field
-    while True:
-        random_index = random.randrange(0, len(field))
-        if field[random_index] == 0:
-            field[random_index] = 2
+    while True:             # find index to place number
+        random_index = random.randrange(0, len(current_field))
+        if current_field[random_index] == 0:
+            current_field[random_index] = 2
             break
-    return field
+    return current_field
 
 def move_nums_to_side(lines, field_size) -> list:
     for i in range(len(lines)):                             # iterate through all lines
@@ -50,23 +50,32 @@ def swipe_left(current_field: list) -> list:
     pass
 
 def swipe_down(current_field: list) -> list:
-    field_size = int(math.sqrt(len(current_field)))
+    x = int(math.sqrt(len(current_field)))
+    columns = [current_field[i::x] for i in range(x)]
+    print('columns:', columns)
+    columns = move_nums_to_side(columns, x)
+    print('columns:', columns)
+    result = []
+    result = [columns[i][j] for j in range(x) for i in range(x)]
+    print('result:', result)
+    return result
+
+    #field_size = int(math.sqrt(len(current_field)))
     #lines = [current_field[field_size * i: field_size * i + field_size] for i in range(field_size)]
     #columns = [current_field[i::field_size] for i in range(field_size)]
-
-    to_skip = []
-    for i in range(len(current_field) - field_size - 1, -1, -1):    # am unteren rand zuerst zusammenfügen
-        if i in to_skip or current_field[i] == 0:
-            continue
-        if current_field[i] == current_field[i + field_size]:
-            current_field[i + field_size] *= 2
-            current_field[i] = 0
-            to_skip.append(i + field_size)
-        if current_field[i + field_size] == 0:
-            current_field[i + field_size] = current_field[i]
-            current_field[i] = 0
-            to_skip.append(i + field_size)
-    return current_field
+    #to_skip = []
+    #for i in range(len(current_field) - field_size - 1, -1, -1):    # am unteren rand zuerst zusammenfügen
+    #    if i in to_skip or current_field[i] == 0:
+    #        continue
+    #    if current_field[i] == current_field[i + field_size]:
+    #        current_field[i + field_size] *= 2
+    #        current_field[i] = 0
+    #        to_skip.append(i + field_size)
+    #    if current_field[i + field_size] == 0:
+    #        current_field[i + field_size] = current_field[i]
+    #        current_field[i] = 0
+    #        to_skip.append(i + field_size)
+    #return current_field
 
 def swipe_right(current_field: list) -> list:
     field_size = int(math.sqrt(len(current_field)))
@@ -85,19 +94,12 @@ def swipe(current_field: list, direction: str) -> list:
         return swipe_right(current_field)
 
 
-field_size = 4
-field = [0 for _ in range(1, field_size ** 2 + 1)]     # initialize field with zeros
-# field = [i for i in range(1, field_size ** 2 + 1)]     # initialize field with zeros
+square_size = 4
+field = [0 for _ in range(1, square_size ** 2 + 1)]     # initialize field with zeros
+# field = [i for i in range(1, field_size ** 2 + 1)]     # initialize field with numbers
 
 print(field)
 
-field = add_num_to_field(field)
-field = add_num_to_field(field)
-field = add_num_to_field(field)
-field = add_num_to_field(field)
-field = add_num_to_field(field)
-field = add_num_to_field(field)
-field = add_num_to_field(field)
 field = add_num_to_field(field)
 field = add_num_to_field(field)
 field = add_num_to_field(field)
@@ -114,6 +116,7 @@ while game_over == False:     # game loop
         player_input = input('Your input here: ')
         if player_input.lower() in ['w', 'a', 's', 'd']:
             field = swipe(field, player_input)
+            field = add_num_to_field(field)
             break
         print('Wrong Input! Only up left down & right via W A S & D are possible.')
     print_field(field)
