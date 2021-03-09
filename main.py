@@ -1,29 +1,50 @@
 import random
 import math
 from itertools import chain
-# from colorama import Fore
+from colorama import init, Fore
+
+init(autoreset=True)
+
+game_over = False
+color_codes = {0: Fore.RESET,
+               2: Fore.RED,
+               4: Fore.GREEN,
+               8: Fore.YELLOW,
+               16: Fore.BLUE,
+               32: Fore.MAGENTA,
+               64: Fore.CYAN,
+               128: Fore.LIGHTBLUE_EX,
+               256: Fore.LIGHTRED_EX,
+               512: Fore.LIGHTGREEN_EX,
+               1024: Fore.LIGHTCYAN_EX,
+               2048: Fore.LIGHTYELLOW_EX}
 
 def print_field(current_field:list) -> None:
     field_size = int(math.sqrt(len(current_field)))
     print('# # # # # # # # # # #')
     print('#\t' + '\t' * (field_size - 1) + '\t#')                        # empty line
     for i in range(field_size):
-        print('#\t' + '\t'.join(str(num) for num in current_field[field_size * i : field_size + field_size * i]) + '\t#')      # separate num with spaces
+        print('#\t' + '\t'.join(color_codes[num] + str(num) for num in current_field[field_size * i : field_size + field_size * i]) + Fore.RESET + '\t#')      # separate num with spaces
         print('#\t' + '\t' * (field_size - 1) + '\t#')  # empty line
     print('# # # # # # # # # # #')
 
+def check_game_over(current_field: list) -> bool:
+    field_size = int(math.sqrt(len(current_field)))
+    return current_field\
+           == swipe_down(current_field, field_size)\
+           == swipe_up(current_field, field_size)\
+           == swipe_right(current_field, field_size)\
+           == swipe_left(current_field, field_size)     # if nothing happens after swiping, the game is over
+
 def add_num_to_field(current_field: list) -> list:
-    if min(current_field) != 0:     # check if there is any space to replace a 0
+    if min(current_field) != 0:         # check if there is any space to replace a 0
+        if not check_game_over(current_field):  # if no movement is possible the game is lost
+            global game_over
+            game_over = True
         return current_field
-    # try:                # check if there is any space to replace a 0
-    #     field.index(0)
-    # except ValueError:
-    #     return field
-    while True:             # find index to place number
-        random_index = random.randrange(0, len(current_field))
-        if current_field[random_index] == 0:
-            current_field[random_index] = 2
-            break
+    free_indices = [i for i, x in enumerate(current_field) if x == 0]
+    random_index = random.choice(free_indices)
+    current_field[random_index] = 2
     return current_field
 
 def move_nums_to_side(lines, field_size) -> list:
@@ -43,51 +64,46 @@ def move_nums_to_side(lines, field_size) -> list:
             lines[i].insert(0, 0)
     return lines
 
-def swipe_up(current_field: list) -> list:
-    pass
+def swipe_down(current_field: list, field_size: int) -> list:
+    columns = [current_field[i::field_size] for i in range(field_size)]                                 # separate field into the separate columns
+    columns = move_nums_to_side(columns, field_size)                                                    # apply swiping to columns
+    return [columns[i][j] for j in range(field_size) for i in range(field_size)]                        # return result
 
-def swipe_left(current_field: list) -> list:
-    pass
+def swipe_right(current_field: list, field_size: int) -> list:
+    lines = [current_field[field_size * i: field_size * i + field_size] for i in range(field_size)]     # separate field into the separate lines
+    lines = move_nums_to_side(lines, field_size)                                                        # apply swiping to lines
+    return list(chain.from_iterable(lines))                                                             # return result
 
-def swipe_down(current_field: list) -> list:
-    x = int(math.sqrt(len(current_field)))
-    columns = [current_field[i::x] for i in range(x)]
-    columns = move_nums_to_side(columns, x)
-    return [columns[i][j] for j in range(x) for i in range(x)]
 
-    #field_size = int(math.sqrt(len(current_field)))
-    #lines = [current_field[field_size * i: field_size * i + field_size] for i in range(field_size)]
-    #columns = [current_field[i::field_size] for i in range(field_size)]
-    #to_skip = []
-    #for i in range(len(current_field) - field_size - 1, -1, -1):    # am unteren rand zuerst zusammenfügen
-    #    if i in to_skip or current_field[i] == 0:
-    #        continue
-    #    if current_field[i] == current_field[i + field_size]:
-    #        current_field[i + field_size] *= 2
-    #        current_field[i] = 0
-    #        to_skip.append(i + field_size)
-    #    if current_field[i + field_size] == 0:
-    #        current_field[i + field_size] = current_field[i]
-    #        current_field[i] = 0
-    #        to_skip.append(i + field_size)
-    #return current_field
+def swipe_left(current_field: list, field_size: int) -> list:
+    lines = [current_field[field_size * i: field_size * i + field_size] for i in range(field_size)]     # separate field into the separate lines
+    for line in lines:                                                                                  # reverse content to apply move_nums_to_side() the same way
+        line.reverse()                                                                                  # it is applied in swipe_right() (quite lazy but handy solution)
+    lines = move_nums_to_side(lines, field_size)                                                        # apply swiping to lines
+    for line in lines:                                                                                  # reverse content to return it the same way
+        line.reverse()                                                                                  # it is return in swipe_right() (quite lazy but handy solution)
+    return list(chain.from_iterable(lines))                                                             # return result
 
-def swipe_right(current_field: list) -> list:
-    field_size = int(math.sqrt(len(current_field)))
-    lines = [current_field[field_size * i: field_size * i + field_size] for i in range(field_size)]
-    lines = move_nums_to_side(lines, field_size)
-    return list(chain.from_iterable(lines))
+def swipe_up(current_field: list, field_size: int) -> list:
+    columns = [current_field[i::field_size] for i in range(field_size)]                                 # separate field into the separate columns
+    for column in columns:                                                                              # reverse content to apply move_nums_to_side() the same way
+        column.reverse()                                                                                # it is applied in swipe_down() (quite lazy but handy solution)
+    columns = move_nums_to_side(columns, field_size)                                                    # apply swiping to columns
+    for column in columns:                                                                              # reverse content to return it the same way
+        column.reverse()                                                                                # it is return in swipe_right() (quite lazy but handy solution)
+    return [columns[i][j] for j in range(field_size) for i in range(field_size)]                        # return result
+
 
 def swipe(current_field: list, direction: str) -> list:
+    field_size = int(math.sqrt(len(current_field)))
     if direction == 'w':
-        return swipe_up(current_field)
+        return swipe_up(current_field, field_size)
     if direction == 'a':
-        return swipe_left(current_field)
+        return swipe_left(current_field, field_size)
     if direction == 's':
-        return swipe_down(current_field)
+        return swipe_down(current_field, field_size)
     if direction == 'd':
-        return swipe_right(current_field)
-
+        return swipe_right(current_field, field_size)
 
 square_size = 4
 field = [0 for _ in range(1, square_size ** 2 + 1)]     # initialize field with zeros
@@ -95,7 +111,6 @@ field = [0 for _ in range(1, square_size ** 2 + 1)]     # initialize field with 
 
 print(field)
 
-field = add_num_to_field(field)
 field = add_num_to_field(field)
 field = add_num_to_field(field)
 
@@ -115,3 +130,6 @@ while game_over == False:     # game loop
             break
         print('Wrong Input! Only up left down & right via W A S & D are possible.')
     print_field(field)
+    if max(field) == 2048:
+        print('WIN!')
+        break
