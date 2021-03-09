@@ -52,13 +52,8 @@ def swipe_left(current_field: list) -> list:
 def swipe_down(current_field: list) -> list:
     x = int(math.sqrt(len(current_field)))
     columns = [current_field[i::x] for i in range(x)]
-    print('columns:', columns)
     columns = move_nums_to_side(columns, x)
-    print('columns:', columns)
-    result = []
-    result = [columns[i][j] for j in range(x) for i in range(x)]
-    print('result:', result)
-    return result
+    return [columns[i][j] for j in range(x) for i in range(x)]
 
     #field_size = int(math.sqrt(len(current_field)))
     #lines = [current_field[field_size * i: field_size * i + field_size] for i in range(field_size)]
