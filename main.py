@@ -5,7 +5,6 @@ from colorama import init, Fore
 
 init(autoreset=True)
 
-game_over = False
 color_codes = {0: Fore.RESET,
                2: Fore.RED,
                4: Fore.GREEN,
@@ -38,9 +37,6 @@ def check_game_over(current_field: list) -> bool:
 
 def add_num_to_field(current_field: list) -> list:
     if min(current_field) != 0:         # check if there is any space to replace a 0
-        if not check_game_over(current_field):  # if no movement is possible the game is lost
-            global game_over
-            game_over = True
         return current_field
     free_indices = [i for i, x in enumerate(current_field) if x == 0]
     random_index = random.choice(free_indices)
@@ -107,25 +103,29 @@ def swipe(current_field: list, direction: str) -> list:
 
 square_size = 4
 field = [0 for _ in range(1, square_size ** 2 + 1)]     # initialize field with zeros
-# field = [i for i in range(1, field_size ** 2 + 1)]     # initialize field with numbers
+# field = [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1024, 512, 256, 4, 2, 2]   # field to force losing the game
 
-print(field)
-
+# add two 2s at random positions
 field = add_num_to_field(field)
 field = add_num_to_field(field)
 
 print('Use\tW\tA\tS\tD to swipe\n\tup\tleft\tdown\tright.\nPress Enter to confirm.')
 
-game_over = False
-
 print_field(field)
 
-while game_over == False:     # game loop
+while True:     # game loop
     player_input = ''
+    if check_game_over(field): # check for game over
+        print('You lose')
+        break
     while True:
         player_input = input('Your input here: ')
         if player_input.lower() in ['w', 'a', 's', 'd']:
-            field = swipe(field, player_input)
+            old_field = field.copy()                        # prepare comparing field after swipe
+            new_field = swipe(field, player_input)          # apply swipe
+            if new_field == old_field:                      # compare field before and after swipe
+                break                                       # field can stay the same for next swipe
+            field = new_field.copy()
             field = add_num_to_field(field)
             break
         print('Wrong Input! Only up left down & right via W A S & D are possible.')
