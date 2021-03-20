@@ -97,7 +97,7 @@ def swipe(current_field: list, direction: str) -> list:
 
 square_size = 4
 field = [0 for _ in range(1, square_size ** 2 + 1)]     # initialize field with zeros
-field = [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 2048, 512, 256, 4, 2, 2]   # field to force losing the game
+# field = [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 2048, 512, 256, 4, 2, 2]   # field to force losing the game
 
 # add two 2s at random positions
 field = add_num_to_field(field)
