@@ -1,9 +1,7 @@
 import random
 import math
 from itertools import chain
-from colorama import init, Fore
-
-init(autoreset=True)
+from colorama import Fore
 
 color_codes = {0: Fore.RESET,
                2: Fore.RED,
@@ -20,12 +18,8 @@ color_codes = {0: Fore.RESET,
 
 def print_field(current_field:list) -> None:
     field_size = int(math.sqrt(len(current_field)))
-    print('# # # # # # # # # # #')
-    print('#\t' + '\t' * (field_size - 1) + '\t#')                        # empty line
     for i in range(field_size):
-        print('#\t' + '\t'.join(color_codes[num] + str(num) for num in current_field[field_size * i : field_size + field_size * i]) + Fore.RESET + '\t#')      # separate num with spaces
-        print('#\t' + '\t' * (field_size - 1) + '\t#')  # empty line
-    print('# # # # # # # # # # #')
+        print('  '.join(color_codes[num] + str(num).center(4) for num in current_field[field_size * i : field_size + field_size * i]) + Fore.RESET + '\n')      # separate num with spaces
 
 def check_game_over(current_field: list) -> bool:
     field_size = int(math.sqrt(len(current_field)))
@@ -103,7 +97,7 @@ def swipe(current_field: list, direction: str) -> list:
 
 square_size = 4
 field = [0 for _ in range(1, square_size ** 2 + 1)]     # initialize field with zeros
-# field = [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1024, 512, 256, 4, 2, 2]   # field to force losing the game
+field = [1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 2048, 512, 256, 4, 2, 2]   # field to force losing the game
 
 # add two 2s at random positions
 field = add_num_to_field(field)
