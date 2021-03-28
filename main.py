@@ -70,7 +70,7 @@ def swipe_up(field: list) -> list:
     columns = [field[i::square_size] for i in range(square_size)]
     for column in columns:                              # reverse content to apply move_nums_to_side() the same way
         column.reverse()                                # it is applied in swipe_down() (quite lazy but handy solution)
-    columns = move_nums_to_side(columns)   # apply swiping to columns
+    columns = move_nums_to_side(columns)                # apply swiping to columns
     for column in columns:                              # reverse content to return it the same way
         column.reverse()                                # it is return in swipe_right() (quite lazy but handy solution)
     return [columns[i][j] for j in range(square_size) for i in range(square_size)]
@@ -78,19 +78,19 @@ def swipe_up(field: list) -> list:
 
 def swipe_down(field: list) -> list:
     columns = [field[i::square_size] for i in range(square_size)]
-    columns = move_nums_to_side(columns)                               # apply swiping to columns
+    columns = move_nums_to_side(columns)                                            # apply swiping to columns
     return [columns[i][j] for j in range(square_size) for i in range(square_size)]  # return result
 
 def swipe_right(field: list) -> list:
     lines = [field[square_size * (i - 1):square_size * i] for i in range(1, square_size + 1)]
-    lines = move_nums_to_side(lines)   # apply swiping to lines
+    lines = move_nums_to_side(lines)                # apply swiping to lines
     return list(chain.from_iterable(lines))         # return result
 
 def swipe_left(field: list) -> list:
     lines = [field[square_size * (i - 1):square_size * i] for i in range(1, square_size + 1)]
     for line in lines:                              # reverse content to apply move_nums_to_side() the same way
         line.reverse()                              # it is applied in swipe_right() (quite lazy but handy solution)
-    lines = move_nums_to_side(lines)   # apply swiping to lines
+    lines = move_nums_to_side(lines)                # apply swiping to lines
     for line in lines:                              # reverse content to return it the same way
         line.reverse()                              # it is return in swipe_right() (quite lazy but handy solution)
     return list(chain.from_iterable(lines))         # return result
